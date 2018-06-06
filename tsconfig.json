@@ -1,14 +1,21 @@
 {
     "compilerOptions": {
         "module": "commonjs",
+        "target": "es5",
         "noImplicitAny": false,
         "removeComments": true,
         "preserveConstEnums": true,
         "outDir": "lib/",
-		"lib": ["es6"]
+        "lib": ["es6", "dom"],
+        "sourceMap": true,
+        "declaration": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
+        "test/**/*"
     ],
     "exclude": [
         "node_modules"

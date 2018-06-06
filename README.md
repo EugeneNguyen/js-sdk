@@ -1,45 +1,48 @@
+# Alps Javascript SDK
+
+`AlpsSDK` is a contextualized publish/subscribe model which can be used to model any geolocated or proximity based mobile application.
+
 # Usage
 
 ## Installation
 
-To install the packages:
+Clone the repo locally and install the dependencies from the root folder with:
+
+## Compilation
+
+Install dependencies:
 
 ```
 npm install
 ```
 
-You need to also install the js-api module, if you have it installed locally, you can do it by passing the local path to it's git repo:
-
-```
-npm install /PATH/TO/js-api/
-```
-
-or by using the version on GitHub:
-
-```
-npm https://github.com/MatchMore/js-api
-```
-
-## Compilation
-
 To compile the project:
 
+
 ```
-tsc
+npm run build
 ```
 
 To create a Standalone (using Browserify):
 
 ```
-browserify lib/manager.js --standalone matchmore > build/matchmore.js
+npm run browserify
 ```
+
+Create a (greatly) minified version
+
+```
+npm run minify
+```
+
+
 
 ## Testing
 
 To run the tests:
 
 *IMPORTANT* 
-Please edit `test/config.js` to add a valid API key before to use the tests
+Please edit `test/config.ts` to add a valid API key before to use the tests
 
 ``` 
 npm test
@@ -49,7 +52,7 @@ npm test
 
 ### In a browser
 
-Include `build/matchmore.js` into your page and start by creating a Manager() instance. The Manager will allow you to create Users, Devices, Publications, Subscriptions, ...
+Include `dist/matchmore.min.js` into your page and start by creating a Manager() instance. The Manager will allow you to create Users, Devices, Publications, Subscriptions, ...
 
 ### In your project 
 

@@ -1,21 +1,49 @@
+<<<<<<< HEAD
 import ScalpsCoreRestApi = require('matchmore_core_rest_api');
 import { Manager } from './manager';
+=======
+import { Manager } from "./manager";
+import * as models from "./model/models";
+>>>>>>> quickfix/add_gitignore
+
+export interface GPSConfig {
+  enableHighAccuracy: boolean;
+  timeout: number;
+  maximumAge: number;
+}
 
 export class LocationManager {
-    manager: Manager;
+  private _onLocationUpdate: (location: models.Location) => void;
+  private _geoId;
+  private _gpsConfig: GPSConfig;
 
-    private geoId;
+  constructor(public manager: Manager, config?: GPSConfig) {
+    this._gpsConfig = config || {
+      enableHighAccuracy: false,
+      timeout: 60000,
+      maximumAge: 60000
+    };
+    this._onLocationUpdate = loc => {};
+  }
 
-    public onLocationUpdate: (location: ScalpsCoreRestApi.Location) => void;
-
-    constructor(manager: Manager) {
-        this.init(manager);
+  public startUpdatingLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        this.onLocationReceived,
+        this.onError,
+        this._gpsConfig
+      );
+      this._geoId = navigator.geolocation.watchPosition(
+        this.onLocationReceived,
+        this.onError,
+        this._gpsConfig
+      );
+    } else {
+      throw new Error("Geolocation is not supported in this browser/app");
     }
+  }
 
-    private init(manager) {
-        this.manager = manager;
-    }
-
+<<<<<<< HEAD
     public startUpdatingLocation() {
         let watchOptions = {
             timeout: 60 * 60 * 1000,
@@ -27,34 +55,25 @@ export class LocationManager {
         } else {
             throw new Error("Geolocation is not supported in this browser/app")
         }
+=======
+  public stopUpdatingLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.clearWatch(this._geoId);
+    } else {
+      throw new Error("Geolocation is not supported in this browser/app");
+>>>>>>> quickfix/add_gitignore
     }
+  }
 
-    public stopUpdatingLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.clearWatch(this.geoId);
-        } else {
-            throw new Error("Geolocation is not supported in this browser/app")
-        }
-    }
+  set onLocationUpdate(onLocationUpdate: (location: models.Location) => void) {
+    this._onLocationUpdate = onLocationUpdate;
+  }
 
-    private onLocationReceived(loc) {
-        if (!loc.coords) return; // Guard for bad values
-        let latitude, longitude, altitude;
-        if (loc.coords.latitude)
-            latitude = parseFloat(loc.coords.latitude);
-        else
-            return;
-        //throw new Error("Location did not contain any latitude: " + JSON.stringify(loc));
-        if (loc.coords.longitude)
-            longitude = parseFloat(loc.coords.longitude);
-        else
-            return;
-        //throw new Error("Location did not contain any longitude: " + JSON.stringify(loc));
-        if (loc.coords.altitude)
-            altitude = parseFloat(loc.coords.altitude);
-        else
-            altitude = 0; // Default value, TODO: use an altitude API?
+  private onLocationReceived(loc) {
+    loc.coords.horizontalAccuracy = 1.0;
+    loc.coords.verticalAccuracy = 1.0;
 
+<<<<<<< HEAD
         //TODO: Allow user to specify not to use altitude (forcing to some value)
         altitude = 0;
 
@@ -65,19 +84,25 @@ export class LocationManager {
         catch (e) {
             // Allow to update location even when there is no device / user created
         }
+=======
+    if (this._onLocationUpdate) {
+      this._onLocationUpdate(loc);
+>>>>>>> quickfix/add_gitignore
     }
+    this.manager.updateLocation(loc.coords);
+  }
 
-    private onError(error) {
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                throw new Error("User denied the request for Geolocation.");
-            case error.POSITION_UNAVAILABLE:
-                throw new Error("Location information is unavailable.");
-            case error.TIMEOUT:
-                throw new Error("The request to get user location timed out.");
-            case error.UNKNOWN_ERROR:
-                throw new Error("An unknown error occurred.");
-        }
-    }
+  private onError(error) {
+    throw new Error(error.message);
+    // switch (error.code) {
+    //   case error.PERMISSION_DENIED:
+    //     throw new Error("User denied the request for Geolocation.");
+    //   case error.POSITION_UNAVAILABLE:
+    //     throw new Error("Location information is unavailable.");
+    //   case error.TIMEOUT:
+    //     throw new Error("The request to get user location timed out. " );
+    //   case error.UNKNOWN_ERROR:
+    //     throw new Error("An unknown error occurred.");
+    // }
+  }
 }
-
