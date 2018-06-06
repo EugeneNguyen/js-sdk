@@ -1,2 +1,6 @@
 .projectile
 node_modules/
+samples/ReactNativeSample/android/app/build
+samples/ReactNativeSample/android/build
+samples/ReactNativeSample/ios/build
+samples/ReactNativeSample/ios/Pods
