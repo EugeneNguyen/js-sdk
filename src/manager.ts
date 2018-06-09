@@ -1,21 +1,20 @@
-<<<<<<< HEAD
-import ScalpsCoreRestApi = require('matchmore_core_rest_api');
-import { MatchMonitor } from './matchmonitor';
-import { LocationManager } from './locationmanager';
-=======
 import ScalpsCoreRestApi = require("matchmore_alps_core_rest_api");
 import Base64 = require("Base64");
-import { MatchMonitor, MatchMonitorMode } from "./matchmonitor";
-import { LocationManager, GPSConfig } from "./locationmanager";
+import {
+  MatchMonitor,
+  MatchMonitorMode,
+  IPersistenceManager,
+  InMemoryPersistenceManager,
+  LocationManager,
+  GPSConfig,
+} from './index';
 import * as models from "./model/models";
-import { IPersistenceManager, InMemoryPersistenceManager } from "./persistence";
 
 export interface Token {
   sub: string;
 }
 
 type Provider<T> = (deviceId: string) => T;
->>>>>>> quickfix/add_gitignore
 
 export class Manager {
   private defaultClient: ScalpsCoreRestApi.ApiClient;
@@ -180,8 +179,18 @@ export class Manager {
       device.deviceType = models.DeviceType.MobileDevice;
       return device;
     }
-
-<<<<<<< HEAD
+  
+    if (this.isPinDevice(device)) {
+      device.deviceType = models.DeviceType.PinDevice;
+      return device;
+    }
+    if (this.isBeaconDevice(device)) {
+      device.deviceType = models.DeviceType.IBeaconDevice;
+      return device;
+    }
+    throw new Error("Cannot determine device type");
+  }
+  
     public getUser(userId: String, completion?: (user: ScalpsCoreRestApi.User) => void) {
         let p = new Promise((resolve, reject) => {
             let api = new ScalpsCoreRestApi.UserApi();
@@ -220,26 +229,6 @@ export class Manager {
         return p;
     }
 
-
-    public getAllMatches(completion?: (matches: ScalpsCoreRestApi.Match[]) => void) {
-        if (this.defaultUser && this.defaultDevice) {
-            return this.getAllMatchesForAny(this.defaultUser.userId, this.defaultDevice.deviceId);
-        } else {
-            throw new Error("There is no default user or device available, please call createUser and createDevice before getAllMatches");
-        }
-=======
-    if (this.isBeaconDevice(device)) {
-      device.deviceType = models.DeviceType.IBeaconDevice;
-      return device;
->>>>>>> quickfix/add_gitignore
-    }
-
-    if (this.isPinDevice(device)) {
-      device.deviceType = models.DeviceType.PinDevice;
-      return device;
-    }
-
-<<<<<<< HEAD
     public getPublication(userId: String, deviceId: String, publicationId, completion?: (device: ScalpsCoreRestApi.Publication) => void) {
         let p = new Promise((resolve, reject) => {
             let api = new ScalpsCoreRestApi.PublicationApi();
@@ -280,18 +269,17 @@ export class Manager {
 
     public getAllPublicationsForDevice(userId: String, deviceId: String, completion?: (publications: ScalpsCoreRestApi.Publication[]) => void) {
         let p = new Promise((resolve, reject) => {
-            let api = new ScalpsCoreRestApi.DeviceApi();
-            let callback = function(error, data, response) {
-                if (error) {
-                    reject("An error has occured while fetching publications: " + error)
-                } else {
-                    // Ensure that the json response is sent as pure as possible, sometimes data != response.text. Swagger issue?
-                    resolve(JSON.parse(response.text));
-                }
-            };
-            api.getPublications(userId, deviceId, callback);
-=======
-    throw new Error("Cannot determine device type");
+          let api = new ScalpsCoreRestApi.DeviceApi();
+          let callback = function (error, data, response) {
+            if (error) {
+              reject("An error has occured while fetching publications: " + error)
+            } else {
+              // Ensure that the json response is sent as pure as possible, sometimes data != response.text. Swagger issue?
+              resolve(JSON.parse(response.text));
+            }
+          };
+          api.getPublications(userId, deviceId, callback);
+        })
   }
 
   private isMobileDevice(device: models.Device): device is models.MobileDevice {
@@ -536,7 +524,6 @@ export class Manager {
           };
 
           api.getPublications(deviceId, callback);
->>>>>>> quickfix/add_gitignore
         });
         return p;
       }
@@ -553,7 +540,6 @@ export class Manager {
     );
   }
 
-<<<<<<< HEAD
     public getSubscription(userId: String, deviceId: String, subscriptionId, completion?: (device: ScalpsCoreRestApi.Subscription) => void) {
         let p = new Promise((resolve, reject) => {
             let api = new ScalpsCoreRestApi.SubscriptionApi();
@@ -593,18 +579,20 @@ export class Manager {
     }
 
     public getAllSubscriptionsForDevice(userId: String, deviceId: String, completion?: (subscriptions: ScalpsCoreRestApi.Subscription[]) => void) {
-        let p = new Promise((resolve, reject) => {
-            let api = new ScalpsCoreRestApi.DeviceApi();
-            let callback = function(error, data, response) {
-                if (error) {
-                    reject("An error has occured while fetching subscriptions: " + error)
-                } else {
-                    // Ensure that the json response is sent as pure as possible, sometimes data != response.text. Swagger issue?
-                    resolve(JSON.parse(response.text));
-                }
-            };
-            api.getSubscriptions(userId, deviceId, callback);
-=======
+      let p = new Promise((resolve, reject) => {
+        let api = new ScalpsCoreRestApi.DeviceApi();
+        let callback = function (error, data, response) {
+          if (error) {
+            reject("An error has occured while fetching subscriptions: " + error)
+          } else {
+            // Ensure that the json response is sent as pure as possible, sometimes data != response.text. Swagger issue?
+            resolve(JSON.parse(response.text));
+          }
+        };
+        api.getSubscriptions(userId, deviceId, callback);
+      });
+      return p;
+    }
   /**
    * Gets subscriptions
    * @param deviceId optional, if not provided the default device will be used
@@ -630,7 +618,6 @@ export class Manager {
           };
 
           api.getSubscriptions(deviceId, callback);
->>>>>>> quickfix/add_gitignore
         });
         return p;
       }
